@@ -1,6 +1,9 @@
 package com.sarthakghosh.musicon_spotifyscreen;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -8,7 +11,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
+import com.microsoft.band.BandException;
+import com.microsoft.band.BandIOException;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -29,6 +35,12 @@ public class MainActivity extends Activity{
     private ImageButton back;
     boolean isPlaying = false;
     boolean resuming = false;
+
+    private Button btnConnectBand;
+    private Button btnStartHRS;
+    private TextView hrsTextView;
+private Band msBandobject;
+
     SpotifyClass spotifyPlayer;
     private String firstSongURI="spotify:track:2TpxZ7JUBn3uw46aR7qd6V";
 
@@ -43,15 +55,57 @@ public class MainActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        msBandobject= new Band(this, getBaseContext());
+
+
         spotifyPlayer= new SpotifyClass(this, MainActivity.this);
+
+
+
+
+        btnConnectBand= (Button) findViewById(R.id.btnConnect);
+        btnStartHRS= (Button) findViewById(R.id.btnStart);
+        hrsTextView= (TextView) findViewById(R.id.hrsTextView);
+        setupBandButtons();
+
 
 
         play_pause=(ImageButton)findViewById(R.id.play);
         back=(ImageButton)findViewById(R.id.back);
         skip=(ImageButton)findViewById(R.id.skip);
+        setupSpotifyButtons();
+
+        IntentFilter filter = new IntentFilter("com.sarthakghosh.musicon_spotifyscreen.Broadcast");
+        registerReceiver(textReceiver, filter);
 
 
 
+
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        spotifyPlayer.checkAuthentication(requestCode, resultCode, intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        spotifyPlayer.destroyPlayer();
+        if (msBandobject.getClient() != null) {
+            msBandobject.disconnect();
+        }
+        //Spotify.destroyPlayer(this);
+
+        unregisterReceiver(textReceiver);
+        super.onDestroy();
+    }
+
+    void setupSpotifyButtons()
+    {
         play_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,21 +129,55 @@ public class MainActivity extends Activity{
                 }
             }
         });
+
     }
+
+    void setupBandButtons() {
+        btnConnectBand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            msBandobject.checkConsent();
+
+            }
+        });
+        btnStartHRS.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                msBandobject.startSensing();
+
+            }
+        });
+
+    }
+@Override
+    protected void onResume() {
+        super.onResume();
+        hrsTextView.setText("");
+   // registerReceiver(broadcastReceiver, new IntentFilter(SmsReceiver.BROADCAST_ACTION));
+}
+
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-        spotifyPlayer.checkAuthentication(requestCode, resultCode, intent);
+    protected void onPause() {
+        super.onPause();
+
+        if (msBandobject.getClient() != null) {
+
+
+                msBandobject.unregisterListener();
+
+
+        }
     }
 
+protected BroadcastReceiver textReceiver= new BroadcastReceiver() {
     @Override
-    protected void onDestroy() {
-
-        spotifyPlayer.destroyPlayer();
-        //Spotify.destroyPlayer(this);
-        super.onDestroy();
+    public void onReceive(Context context, Intent intent) {
+        String textReceived=intent.getExtras().getString("Text");
+        hrsTextView.setText(textReceived);
     }
-
+};
 
 }
