@@ -3,8 +3,10 @@
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
+/.idea/*.xml
 .DS_Store
 .idea
+.idea/*.xml
 /.idea
 *.iml
 /*.iml
