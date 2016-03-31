@@ -22,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sarthakghosh.musicon_spotifyscreen.model.Item;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton back;
     private SearchView mSearchView;
     private ImageView mAlbumArt;
+    private TextView mHeartRate;
 
 
     private ListView mSearchResultList;
@@ -96,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
         play_pause = (ImageButton) findViewById(R.id.play);
         back = (ImageButton) findViewById(R.id.back);
         skip = (ImageButton) findViewById(R.id.skip);
+        mHeartRate = (TextView) findViewById(R.id.heart_rate);
         setupSpotifyButtons();
 
         IntentFilter filter = new IntentFilter("com.sarthakghosh.musicon_spotifyscreen.Broadcast");
@@ -124,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 if (mSearchView.getQuery().toString().isEmpty()) {
                     Toast.makeText(MainActivity.this, "No Search Query!", Toast.LENGTH_SHORT).show();
+                    (menu.findItem(R.id.search)).collapseActionView();
                     return false;
                 } else {
                     String queryText = mSearchView.getQuery().toString();
@@ -308,6 +312,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String textReceived = intent.getExtras().getString("Text");
+            mHeartRate.setText(textReceived);
         }
     };
 

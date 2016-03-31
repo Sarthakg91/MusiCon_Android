@@ -43,6 +43,7 @@ public class Band{
             {
                 heartRate= bandHeartRateEvent.getHeartRate();
                 quality= String.valueOf(bandHeartRateEvent.getQuality());
+                appendToUI(String.valueOf(heartRate));
             }
         }
     };
