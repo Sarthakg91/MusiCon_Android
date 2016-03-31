@@ -145,8 +145,9 @@ private Band msBandobject;
             @Override
             public void onClick(View v) {
 
-                msBandobject.startSensing();
 
+                Log.d(MainActivity.class.getSimpleName(),"startSensing is being called");
+                msBandobject.startSensing();
             }
         });
 

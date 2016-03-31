@@ -4,6 +4,7 @@ package com.sarthakghosh.musicon_spotifyscreen;
         import android.content.Context;
         import android.content.Intent;
         import android.os.AsyncTask;
+        import android.util.Log;
 
         import java.lang.ref.WeakReference;
 
@@ -46,6 +47,7 @@ public class Band{
             if(bandHeartRateEvent!=null)
             {
                 heartRate= bandHeartRateEvent.getHeartRate();
+                appendToUI(String.valueOf(heartRate));
                 quality= String.valueOf(bandHeartRateEvent.getQuality());
             }
         }
@@ -81,6 +83,8 @@ public class Band{
                         client.getSensorManager().requestHeartRateConsent(params[0].get(), new HeartRateConsentListener() {
                             @Override
                             public void userAccepted(boolean consentGiven) {
+
+
                             }
                         });
                     }
@@ -117,6 +121,7 @@ public class Band{
         protected Void doInBackground(Void... params) {
             try {
                 if (getConnectedBandClient()) {
+                    Log.d("Band","Inside getConnectBandClient");
                     if (client.getSensorManager().getCurrentHeartRateConsent() == UserConsent.GRANTED) {
                         client.getSensorManager().registerHeartRateEventListener(mHeartRateEventListener);
                     } else {
