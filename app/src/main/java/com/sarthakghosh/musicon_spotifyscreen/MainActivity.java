@@ -7,25 +7,22 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.microsoft.band.BandException;
-import com.microsoft.band.BandIOException;
-import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationRequest;
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
-import com.spotify.sdk.android.player.Config;
-import com.spotify.sdk.android.player.Spotify;
-import com.spotify.sdk.android.player.ConnectionStateCallback;
-import com.spotify.sdk.android.player.Player;
-import com.spotify.sdk.android.player.PlayerNotificationCallback;
-import com.spotify.sdk.android.player.PlayerState;
 
-public class MainActivity extends Activity{
+import com.microsoft.band.sensors.HeartRateConsentListener;
+import com.spotify.sdk.android.player.Player;
+
+
+public class MainActivity extends AppCompatActivity{
 
     // Request code that will be used to verify if the result comes from correct activity
 // Can be any integer
@@ -99,6 +96,27 @@ private String playingUri="";
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_connect:
+                msBandobject.checkConsent();
+                return true;
+            case R.id.action_start:
+                msBandobject.startSensing();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         spotifyPlayer.checkAuthentication(requestCode, resultCode, intent);
@@ -131,6 +149,7 @@ private String playingUri="";
                         spotifyPlayer.resume();
                     } else {
                         spotifyPlayer.play(playingUri);
+
 
                     }
 
