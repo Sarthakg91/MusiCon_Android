@@ -30,23 +30,34 @@ public class MainActivity extends Activity{
     // Request code that will be used to verify if the result comes from correct activity
 // Can be any integer
     //private static final int REQUEST_CODE = 1337;
+
+
     private ImageButton play_pause;
     private ImageButton skip;
     private ImageButton back;
     boolean isPlaying = false;
     boolean resuming = false;
 
+
+
     private Button btnConnectBand;
     private Button btnStartHRS;
     private TextView hrsTextView;
-private Band msBandobject;
-
+    private Band msBandobject;
     SpotifyClass spotifyPlayer;
+
+
+
     private String firstSongURI="spotify:track:2TpxZ7JUBn3uw46aR7qd6V";
+    private String mediumTempoSong="spotify:track:55qBw1900pZKfXJ6Q9A2Lc";
+    private String goodTempoSong="spotify:track:3w3y8KPTfNeOKPiqUTakBh";
+    private String warmUpSong="spotify:track:6nmVeODcBpsGKx5RPv003D";
+
+private String playingUri="";
 
     // TODO: Replace with your client ID
    // private static final String CLIENT_ID = "ca7918d8ada9480d8b239c5557056ff0";
-    // TODO: Replace with your redirect URI
+   // TODO: Replace with your redirect URI
    // private static final String REDIRECT_URI = "musicon://callback";
 
     private Player mPlayer;
@@ -78,6 +89,8 @@ private Band msBandobject;
 
         IntentFilter filter = new IntentFilter("com.sarthakghosh.musicon_spotifyscreen.Broadcast");
         registerReceiver(textReceiver, filter);
+
+        playingUri=firstSongURI;
 
 
 
@@ -117,7 +130,8 @@ private Band msBandobject;
                     if (resuming) {
                         spotifyPlayer.resume();
                     } else {
-                        spotifyPlayer.play(firstSongURI);
+                        spotifyPlayer.play(playingUri);
+
                     }
 
                     isPlaying = true;
@@ -127,6 +141,53 @@ private Band msBandobject;
                     spotifyPlayer.pause();
                     isPlaying = false;
                 }
+            }
+        });
+
+        skip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.d("MainActivity", "inside skip clicked");
+                int h=msBandobject.getHeartRate();
+                spotifyPlayer.pause();
+                play_pause.setImageResource(R.drawable.ic_play);
+
+                if(h>78)
+                {
+                    playingUri=goodTempoSong;
+
+                }
+                else if(h>75)
+                {
+
+                    playingUri=mediumTempoSong;
+                }
+                else
+                {
+                    playingUri=warmUpSong;
+                    //spotifyPlayer.queueSong(warmUpSong);
+                }
+
+                spotifyPlayer.skip(playingUri);
+                play_pause.setImageResource(R.drawable.ic_pause);
+
+                //spotifyPlayer.play(playingUri);
+
+//                if (!isPlaying) {
+//                    play_pause.setImageResource(R.drawable.ic_pause);
+//                    if (resuming) {
+//                        spotifyPlayer.resume();
+//                    } else {
+//                        spotifyPlayer.play(playingUri);
+//
+//                    }
+//
+//                    isPlaying = true;
+//                }
+
+
+
             }
         });
 

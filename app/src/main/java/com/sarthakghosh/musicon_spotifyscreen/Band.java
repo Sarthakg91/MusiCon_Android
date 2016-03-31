@@ -73,6 +73,10 @@ public class Band{
     public void disconnect() {
     }
 
+    public int getHeartRate() {
+        return heartRate;
+    }
+
     private class HeartRateConsentTask extends AsyncTask<WeakReference<Activity>, Void, Void>{
         @Override
         protected Void doInBackground(WeakReference<Activity>... params) {

@@ -91,6 +91,26 @@ public class SpotifyClass implements PlayerNotificationCallback, ConnectionState
     {
         mPlayer.pause();
     }
+
+    public void queueSong(String uri)
+    {
+        mPlayer.queue(uri);
+    }
+
+    public void clearQueue()
+    {
+        mPlayer.clearQueue();
+    }
+
+    public void skip()
+    {
+        mPlayer.skipToNext();
+    }
+
+    public void previous()
+    {
+        mPlayer.skipToPrevious();
+    }
     public void skip(String uri)
     {
         mPlayer.play(uri);
