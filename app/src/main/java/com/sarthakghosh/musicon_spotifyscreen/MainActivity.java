@@ -1,4 +1,5 @@
 package com.sarthakghosh.musicon_spotifyscreen;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -22,7 +23,7 @@ import com.microsoft.band.sensors.HeartRateConsentListener;
 import com.spotify.sdk.android.player.Player;
 
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     // Request code that will be used to verify if the result comes from correct activity
 // Can be any integer
@@ -35,64 +36,42 @@ public class MainActivity extends AppCompatActivity{
     boolean isPlaying = false;
     boolean resuming = false;
 
-
-
-    private Button btnConnectBand;
-    private Button btnStartHRS;
-    private TextView hrsTextView;
     private Band msBandobject;
     SpotifyClass spotifyPlayer;
 
 
+    private String firstSongURI = "spotify:track:2TpxZ7JUBn3uw46aR7qd6V";
+    private String mediumTempoSong = "spotify:track:55qBw1900pZKfXJ6Q9A2Lc";
+    private String goodTempoSong = "spotify:track:3w3y8KPTfNeOKPiqUTakBh";
+    private String warmUpSong = "spotify:track:6nmVeODcBpsGKx5RPv003D";
 
-    private String firstSongURI="spotify:track:2TpxZ7JUBn3uw46aR7qd6V";
-    private String mediumTempoSong="spotify:track:55qBw1900pZKfXJ6Q9A2Lc";
-    private String goodTempoSong="spotify:track:3w3y8KPTfNeOKPiqUTakBh";
-    private String warmUpSong="spotify:track:6nmVeODcBpsGKx5RPv003D";
-
-private String playingUri="";
+    private String playingUri = "";
 
     // TODO: Replace with your client ID
-   // private static final String CLIENT_ID = "ca7918d8ada9480d8b239c5557056ff0";
-   // TODO: Replace with your redirect URI
-   // private static final String REDIRECT_URI = "musicon://callback";
+    // private static final String CLIENT_ID = "ca7918d8ada9480d8b239c5557056ff0";
+    // TODO: Replace with your redirect URI
+    // private static final String REDIRECT_URI = "musicon://callback";
 
     private Player mPlayer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
 
-        msBandobject= new Band(this, getBaseContext());
+        msBandobject = new Band(this, getBaseContext());
+        spotifyPlayer = new SpotifyClass(this, MainActivity.this);
 
-
-        spotifyPlayer= new SpotifyClass(this, MainActivity.this);
-
-
-
-
-        btnConnectBand= (Button) findViewById(R.id.btnConnect);
-        btnStartHRS= (Button) findViewById(R.id.btnStart);
-        hrsTextView= (TextView) findViewById(R.id.hrsTextView);
-        setupBandButtons();
-
-
-
-        play_pause=(ImageButton)findViewById(R.id.play);
-        back=(ImageButton)findViewById(R.id.back);
-        skip=(ImageButton)findViewById(R.id.skip);
+        play_pause = (ImageButton) findViewById(R.id.play);
+        back = (ImageButton) findViewById(R.id.back);
+        skip = (ImageButton) findViewById(R.id.skip);
         setupSpotifyButtons();
 
         IntentFilter filter = new IntentFilter("com.sarthakghosh.musicon_spotifyscreen.Broadcast");
         registerReceiver(textReceiver, filter);
 
-        playingUri=firstSongURI;
-
-
-
-
-
+        playingUri = firstSongURI;
     }
 
     @Override
@@ -135,8 +114,7 @@ private String playingUri="";
         super.onDestroy();
     }
 
-    void setupSpotifyButtons()
-    {
+    void setupSpotifyButtons() {
         play_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -168,23 +146,18 @@ private String playingUri="";
             public void onClick(View v) {
 
                 Log.d("MainActivity", "inside skip clicked");
-                int h=msBandobject.getHeartRate();
+                int h = msBandobject.getHeartRate();
                 spotifyPlayer.pause();
                 play_pause.setImageResource(R.drawable.ic_play);
 
-                if(h>78)
-                {
-                    playingUri=goodTempoSong;
+                if (h > 78) {
+                    playingUri = goodTempoSong;
 
-                }
-                else if(h>75)
-                {
+                } else if (h > 75) {
 
-                    playingUri=mediumTempoSong;
-                }
-                else
-                {
-                    playingUri=warmUpSong;
+                    playingUri = mediumTempoSong;
+                } else {
+                    playingUri = warmUpSong;
                     //spotifyPlayer.queueSong(warmUpSong);
                 }
 
@@ -206,38 +179,16 @@ private String playingUri="";
 //                }
 
 
-
             }
         });
 
     }
 
-    void setupBandButtons() {
-        btnConnectBand.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            msBandobject.checkConsent();
-
-            }
-        });
-        btnStartHRS.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-
-                Log.d(MainActivity.class.getSimpleName(),"startSensing is being called");
-                msBandobject.startSensing();
-            }
-        });
-
-    }
-@Override
+    @Override
     protected void onResume() {
         super.onResume();
-        hrsTextView.setText("");
-   // registerReceiver(broadcastReceiver, new IntentFilter(SmsReceiver.BROADCAST_ACTION));
-}
+        // registerReceiver(broadcastReceiver, new IntentFilter(SmsReceiver.BROADCAST_ACTION));
+    }
 
 
     @Override
@@ -247,18 +198,17 @@ private String playingUri="";
         if (msBandobject.getClient() != null) {
 
 
-                msBandobject.unregisterListener();
+            msBandobject.unregisterListener();
 
 
         }
     }
 
-protected BroadcastReceiver textReceiver= new BroadcastReceiver() {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        String textReceived=intent.getExtras().getString("Text");
-        hrsTextView.setText(textReceived);
-    }
-};
+    protected BroadcastReceiver textReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String textReceived = intent.getExtras().getString("Text");
+        }
+    };
 
 }
