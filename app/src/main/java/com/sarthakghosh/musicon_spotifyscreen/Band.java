@@ -1,23 +1,20 @@
 package com.sarthakghosh.musicon_spotifyscreen;
 
-        import android.app.Activity;
-        import android.content.Context;
-        import android.content.Intent;
-        import android.os.AsyncTask;
-        import android.util.Log;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.util.Log;
 
-        import java.lang.ref.WeakReference;
-
-        import com.microsoft.band.BandClient;
-        import com.microsoft.band.BandClientManager;
-        import com.microsoft.band.BandException;
-        import com.microsoft.band.BandInfo;
-        import com.microsoft.band.BandIOException;
-        import com.microsoft.band.ConnectionState;
-        import com.microsoft.band.UserConsent;
-        import com.microsoft.band.sensors.BandHeartRateEvent;
-        import com.microsoft.band.sensors.BandHeartRateEventListener;
-        import com.microsoft.band.sensors.HeartRateConsentListener;
+import com.microsoft.band.BandClient;
+import com.microsoft.band.BandClientManager;
+import com.microsoft.band.BandException;
+import com.microsoft.band.BandInfo;
+import com.microsoft.band.ConnectionState;
+import com.microsoft.band.UserConsent;
+import com.microsoft.band.sensors.BandHeartRateEvent;
+import com.microsoft.band.sensors.BandHeartRateEventListener;
+import com.microsoft.band.sensors.HeartRateConsentListener;
 
 /**
  * Created by Sarthak Ghosh on 30-03-2016.
@@ -28,14 +25,12 @@ public class Band{
     private BandClient client = null;
     private int heartRate;
     private String quality;
-    final WeakReference<Activity> reference;
     private Activity mainUiActivity;
     private Context mContext;
 
 
     public Band(Activity uiActivity, Context context)
     {
-        reference = new WeakReference<Activity>(uiActivity);
         mainUiActivity=uiActivity;
         mContext=context;
 
@@ -47,7 +42,6 @@ public class Band{
             if(bandHeartRateEvent!=null)
             {
                 heartRate= bandHeartRateEvent.getHeartRate();
-                appendToUI(String.valueOf(heartRate));
                 quality= String.valueOf(bandHeartRateEvent.getQuality());
             }
         }
@@ -55,7 +49,7 @@ public class Band{
 
     public void checkConsent() {
 
-        new HeartRateConsentTask().execute(reference);
+        new HeartRateConsentTask().execute(mainUiActivity);
     }
 
     public void startSensing() {
@@ -77,18 +71,16 @@ public class Band{
         return heartRate;
     }
 
-    private class HeartRateConsentTask extends AsyncTask<WeakReference<Activity>, Void, Void>{
+    private class HeartRateConsentTask extends AsyncTask<Activity, Void, Void>{
         @Override
-        protected Void doInBackground(WeakReference<Activity>... params) {
+        protected Void doInBackground(final Activity... params) {
             try {
                 if (getConnectedBandClient()) {
-
-                    if (params[0].get() != null) {
-                        client.getSensorManager().requestHeartRateConsent(params[0].get(), new HeartRateConsentListener() {
+                    Log.d("HeartRateConsentTask", "In doInBackground");
+                    if (params[0] != null) {
+                        client.getSensorManager().requestHeartRateConsent(params[0], new HeartRateConsentListener() {
                             @Override
                             public void userAccepted(boolean consentGiven) {
-
-
                             }
                         });
                     }
@@ -125,7 +117,6 @@ public class Band{
         protected Void doInBackground(Void... params) {
             try {
                 if (getConnectedBandClient()) {
-                    Log.d("Band","Inside getConnectBandClient");
                     if (client.getSensorManager().getCurrentHeartRateConsent() == UserConsent.GRANTED) {
                         client.getSensorManager().registerHeartRateEventListener(mHeartRateEventListener);
                     } else {
@@ -182,7 +173,5 @@ public class Band{
         intent.setAction("com.sarthakghosh.musicon_spotifyscreen.Broadcast");
         intent.putExtra("Text", string);
         mainUiActivity.sendBroadcast(intent);
-
-
     }
 }

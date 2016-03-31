@@ -2,5 +2,6 @@
     <string name="app_name">MusiCon_SpotifyScreen</string>
     <string name="action_connect">Connect</string>
     <string name="action_start">Start</string>
+    <string name="search_title">search</string>
 
 </resources>
