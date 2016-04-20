@@ -12,3 +12,5 @@
 /*.iml
 /build
 /captures
+/app/build
+/app/*.iml
