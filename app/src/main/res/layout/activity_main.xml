@@ -1,32 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/wallet_dim_foreground_inverse_holo_dark">
-    <FrameLayout
+    android:background="@color/wallet_dim_foreground_inverse_holo_dark"
+    android:orientation="vertical">
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginRight="16dp">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <ImageView
+        <FrameLayout
+            android:id="@+id/band_connect_button"
             android:layout_width="wrap_content"
-            android:layout_height="70dp"
-            android:src="@drawable/emptyheart"/>
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/emptyheart" />
+
+            <TextView
+                android:id="@+id/heart_rate"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="12dp"
+                android:text="23"
+                android:textColor="@android:color/holo_red_light"
+                android:textSize="16sp" />
+        </FrameLayout>
+
         <TextView
             android:layout_width="wrap_content"
-            android:id="@+id/heart_rate"
-            android:layout_height="40dp"
-            android:text="78"
-            android:textSize="20sp"
-            android:layout_marginTop="21dp"
-            android:layout_marginLeft="40dp"
-            android:textColor="@android:color/holo_red_light"
-            />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:text="Click here to connect to the band"
+            android:textColor="@color/wallet_highlighted_text_holo_light"
+            android:textSize="20sp" />
+    </LinearLayout>
 
-    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/player_view"
@@ -39,82 +58,74 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         tools:context=".ui.MainActivity">
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="60dp"
-                android:text="Connect band"
-                android:layout_marginLeft="45pt"
-                android:layout_marginTop="20dp"
-                android:textSize="20sp"
-                android:textColor="@color/wallet_highlighted_text_holo_light"/>
-
-            <!--<TextView-->
-                <!--android:id="@+id/heart_rate"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginLeft="16dp"-->
-                <!--android:textStyle="bold"-->
-                <!--android:textColor="@android:color/holo_red_light"-->
-                <!--android:textSize="20sp"-->
-                <!--android:text="0 bpm"/>-->
-        </LinearLayout>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageView" />
-
         <ImageView
             android:id="@+id/album_art"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight=".40"
-            android:layout_marginTop="16dp" />
+            android:src="@drawable/peaksong" />
 
         <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="317dp"
-            android:layout_height="wrap_content"
             android:id="@+id/progressBar"
-            android:layout_gravity="center_horizontal"
-            android:progress="@integer/google_play_services_version"/>
-
-        <LinearLayout
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginTop="8dp"
+            android:progress="75" />
 
-            <ImageButton
-                android:id="@+id/back"
-                android:layout_width="0dp"
-                android:layout_height="100dp"
-                android:layout_weight="0.33"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_action_name" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <ImageButton
-                android:id="@+id/play"
-                android:layout_width="0dp"
-                android:layout_height="100dp"
-                android:layout_weight="0.33"
-                android:background="@drawable/ic_play_icon"
 
-                 />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                android:layout_marginTop="8dp"
+                android:textColor="@android:color/white" />
 
-            <ImageButton
-                android:id="@+id/skip"
-                android:layout_width="0dp"
-                android:layout_height="100dp"
-                android:layout_weight="0.33"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_action_name2"/>
-        </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageButton
+                    android:id="@+id/back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_action_name" />
 
+                <ImageButton
+                    android:id="@+id/play"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginLeft="24dp"
+                    android:background="@drawable/ic_play_icon" />
+
+                <ImageButton
+                    android:id="@+id/skip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="24dp"
+                    android:background="@android:color/transparent"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_action_name2" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/song_end_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="4:38"
+                android:layout_gravity="end"
+                android:textColor="@android:color/white" />
+
+        </FrameLayout>
     </LinearLayout>
 
 
@@ -122,14 +133,15 @@
         android:id="@+id/search_result_pane"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white">
+        android:background="@android:color/white"
+        android:visibility="gone">
 
         <ListView
             android:id="@+id/search_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:dividerHeight="1dp"
-            android:layout_gravity="right|top" />
+            android:layout_gravity="right|top"
+            android:dividerHeight="1dp" />
 
     </FrameLayout>
-</FrameLayout>
+</LinearLayout>
