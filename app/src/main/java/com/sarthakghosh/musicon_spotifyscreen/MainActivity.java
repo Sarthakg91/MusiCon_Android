@@ -1,11 +1,17 @@
 package com.sarthakghosh.musicon_spotifyscreen;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.InputType;
@@ -25,6 +31,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.sarthakghosh.musicon_spotifyscreen.model.ContextSongsList;
 import com.sarthakghosh.musicon_spotifyscreen.model.Item;
 import com.sarthakghosh.musicon_spotifyscreen.model.SearchResponse;
 import com.spotify.sdk.android.player.Player;
@@ -35,7 +45,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     // Request code that will be used to verify if the result comes from correct activity
 // Can be any integer
@@ -43,11 +53,13 @@ public class MainActivity extends AppCompatActivity {
     private static final int PLAYER_MODE = 0x001;
     private static final int SEARCH_MODE = 0x002;
 
+    private static final int RESTING = 0x110;
+    private static final int NORMAL = 0x111;
+    private static final int WARMUP = 0x112;
+    private static final int JOGGING = 0x113;
+    private static final int SPRINT = 0x114;
 
-    private String normalTempoSong = "spotify:track:71kEDLdWQxch9W2oP322YJ";
-    private String goodTempoSong = "spotify:track:2DlHlPMa4M17kufBvI2lEN";
-    private String warmUpSong = "spotify:track:62vpWI1CHwFy7tMIcSStl8";
-    private String firstSongURI = "spotify:track:2TpxZ7JUBn3uw46aR7qd6V";
+    private ContextSongsList mSongsList;
     private String playingUri = "";
 
     private LinearLayout mPlayerPane;
@@ -79,6 +91,11 @@ public class MainActivity extends AppCompatActivity {
 
     private Player mPlayer;
 
+
+    private int mHeartRateMode = -1;
+    private GoogleApiClient mGoogleApiClient;
+    private boolean mIsGoogleApiConnected = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
 
         msBandobject = new Band(this, getBaseContext());
         spotifyPlayer = new SpotifyClass(this, MainActivity.this);
+
+        mSongsList = ContextSongsList.getDefaultInstance();
 
         mPlayerPane = (LinearLayout) findViewById(R.id.player_view);
         mSearchPane = (FrameLayout) findViewById(R.id.search_result_pane);
@@ -101,10 +120,32 @@ public class MainActivity extends AppCompatActivity {
         mHeartRate = (TextView) findViewById(R.id.heart_rate);
         setupSpotifyButtons();
 
+
         IntentFilter filter = new IntentFilter("com.sarthakghosh.musicon_spotifyscreen.Broadcast");
         registerReceiver(textReceiver, filter);
 
-        playingUri = firstSongURI;
+        playingUri = mSongsList.getCurrentSongUri();
+
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
     }
 
     @Override
@@ -203,6 +244,22 @@ public class MainActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    private int getHeartRateMode(int heartRate) {
+        if (heartRate >= 55 && heartRate < 65) {
+            return RESTING;
+        } else if (heartRate >= 65 && heartRate < 75) {
+            return NORMAL;
+        } else if (heartRate >= 75 && heartRate < 85) {
+            return WARMUP;
+        } else if (heartRate >= 85 && heartRate < 95) {
+            return JOGGING;
+        } else if (heartRate >= 95) {
+            return SPRINT;
+        } else {
+            return -1;
+        }
+    }
+
     private void startSearchWithQuery(String queryText) {
         Call<SearchResponse> searchResponseCall = SpotifySearchServiceManager.getService().
                 query(queryText, SpotifySearchServiceManager.QUERY_TYPE);
@@ -254,10 +311,9 @@ public class MainActivity extends AppCompatActivity {
                         spotifyPlayer.resume();
                     } else {
                         spotifyPlayer.play(playingUri);
-
-
+                        Picasso.with(MainActivity.this).load(mSongsList.mTrackList.mTracks.
+                                get(mSongsList.getmCurrentSongIndex()).mAlbum.mImages.get(0).mUrl).into(mAlbumArt);
                     }
-
                     isPlaying = true;
                 } else {
                     resuming = true;
@@ -271,27 +327,13 @@ public class MainActivity extends AppCompatActivity {
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int h;
                 Log.d("MainActivity", "inside skip clicked");
-                h = msBandobject.getHeartRate();
-                if(h==0)
-                    h=72;
                 spotifyPlayer.pause();
                 play_pause.setImageResource(R.drawable.ic_play);
 
-                if (h > 95) {
-                    playingUri = goodTempoSong;
-                    mAlbumArt.setImageResource(R.drawable.peaksong);
-
-                } else if (h > 80) {
-
-                    playingUri = warmUpSong;
-                    mAlbumArt.setImageResource(R.drawable.warmup);
-                } else if (h>0){
-                    playingUri = normalTempoSong;
-                    //spotifyPlayer.queueSong(warmUpSong);
-                    mAlbumArt.setImageResource(R.drawable.normalsong);
-                }
+                playingUri = mSongsList.getNextSongUri(); //calling next song changes current song to next song
+                Picasso.with(MainActivity.this).load(mSongsList.mTrackList.mTracks.
+                        get(mSongsList.getmCurrentSongIndex()).mAlbum.mImages.get(0).mUrl).into(mAlbumArt);
 
                 spotifyPlayer.skip(playingUri);
                 play_pause.setImageResource(R.drawable.ic_pause);
@@ -306,11 +348,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
 
         if (msBandobject.getClient() != null) {
-
-
             msBandobject.unregisterListener();
-
-
         }
     }
 
@@ -318,9 +356,65 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String textReceived = intent.getExtras().getString("Text");
+            Log.d("MainActivity", "Text Received: " + textReceived);
             mHeartRate.setText(textReceived);
+            if (textReceived != null && textReceived.length() <= 3) {
+                getContextSpecificSongsList(Integer.valueOf(textReceived));
+            }
         }
     };
+
+    private void getContextSpecificSongsList(int heartRate) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d("MainActivity", "Permission does not exist");
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        if (getHeartRateMode(heartRate) != mHeartRateMode && currentLocation != null) {
+            mHeartRateMode = getHeartRateMode(heartRate);
+            Log.d("MainActivity", "Inside if. About to make request");
+            Call<ContextSongsList> contextSongsListCall = ContextSongListServiceManager.getService().
+                    getSongsList(currentLocation.getLatitude(),
+                    currentLocation.getLongitude(), heartRate);
+            contextSongsListCall.enqueue(new Callback<ContextSongsList>() {
+                @Override
+                public void onResponse(Call<ContextSongsList> call, Response<ContextSongsList> response) {
+                    ContextSongsList songsList = response.body();
+                    Log.d("MainActivity", songsList.mSongURIs.toString());
+                    songsList.populateMetaData();
+                    mSongsList = songsList;
+                }
+
+                @Override
+                public void onFailure(Call<ContextSongsList> call, Throwable t) {
+
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mIsGoogleApiConnected = true;
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        mIsGoogleApiConnected = false;
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        mIsGoogleApiConnected = false;
+    }
 
     public static class KeyBoardManager {
         public static void hideKeyBoard(Activity currentActivity) {

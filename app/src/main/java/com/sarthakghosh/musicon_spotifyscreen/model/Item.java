@@ -19,6 +19,8 @@ public class Item {
     @SerializedName("available_markets")
     public ArrayList<String> mAvailableMarkets = new ArrayList<>();
     @SerializedName("disc_number")
+    public int mDiscNumber;
+    @SerializedName("duration_ms")
     public long mDurationInMS;
     @SerializedName("explicit")
     public boolean mExplicit;

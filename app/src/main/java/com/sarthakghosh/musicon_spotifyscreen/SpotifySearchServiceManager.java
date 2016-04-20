@@ -1,6 +1,7 @@
 package com.sarthakghosh.musicon_spotifyscreen;
 
 import com.sarthakghosh.musicon_spotifyscreen.model.SearchResponse;
+import com.sarthakghosh.musicon_spotifyscreen.model.TrackList;
 
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -24,5 +25,8 @@ public class SpotifySearchServiceManager {
     public interface SpotifySearchService {
         @GET("v1/search")
         Call<SearchResponse> query(@Query("q") String query, @Query("type") String type);
+
+        @GET("v1/tracks")
+        Call<TrackList> getTracks(@Query("ids") String ids);
     }
 }
