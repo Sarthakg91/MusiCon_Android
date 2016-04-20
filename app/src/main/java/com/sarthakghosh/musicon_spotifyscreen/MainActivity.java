@@ -44,9 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int SEARCH_MODE = 0x002;
 
 
-    private String mediumTempoSong = "spotify:track:55qBw1900pZKfXJ6Q9A2Lc";
-    private String goodTempoSong = "spotify:track:3w3y8KPTfNeOKPiqUTakBh";
-    private String warmUpSong = "spotify:track:6nmVeODcBpsGKx5RPv003D";
+    private String normalTempoSong = "spotify:track:71kEDLdWQxch9W2oP322YJ";
+    private String goodTempoSong = "spotify:track:2DlHlPMa4M17kufBvI2lEN";
+    private String warmUpSong = "spotify:track:62vpWI1CHwFy7tMIcSStl8";
     private String firstSongURI = "spotify:track:2TpxZ7JUBn3uw46aR7qd6V";
     private String playingUri = "";
 
@@ -271,25 +271,31 @@ public class MainActivity extends AppCompatActivity {
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                int h;
                 Log.d("MainActivity", "inside skip clicked");
-                int h = msBandobject.getHeartRate();
+                h = msBandobject.getHeartRate();
+                if(h==0)
+                    h=72;
                 spotifyPlayer.pause();
                 play_pause.setImageResource(R.drawable.ic_play);
 
-                if (h > 78) {
+                if (h > 95) {
                     playingUri = goodTempoSong;
+                    mAlbumArt.setImageResource(R.drawable.peaksong);
 
-                } else if (h > 75) {
+                } else if (h > 80) {
 
-                    playingUri = mediumTempoSong;
-                } else {
                     playingUri = warmUpSong;
+                    mAlbumArt.setImageResource(R.drawable.warmup);
+                } else if (h>0){
+                    playingUri = normalTempoSong;
                     //spotifyPlayer.queueSong(warmUpSong);
+                    mAlbumArt.setImageResource(R.drawable.normalsong);
                 }
 
                 spotifyPlayer.skip(playingUri);
                 play_pause.setImageResource(R.drawable.ic_pause);
+
             }
         });
 
