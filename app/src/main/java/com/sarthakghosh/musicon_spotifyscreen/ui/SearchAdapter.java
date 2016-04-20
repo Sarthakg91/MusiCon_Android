@@ -1,4 +1,4 @@
-package com.sarthakghosh.musicon_spotifyscreen;
+package com.sarthakghosh.musicon_spotifyscreen.ui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.sarthakghosh.musicon_spotifyscreen.R;
 import com.sarthakghosh.musicon_spotifyscreen.model.Item;
 
 import java.util.ArrayList;
@@ -15,22 +16,6 @@ import java.util.ArrayList;
  */
 public class SearchAdapter extends BaseAdapter {
     public ArrayList<Item> mTracks = new ArrayList<>();
-
-    @Override
-    public int getCount() {
-        return mTracks.size();
-    }
-
-    @Override
-    public Item getItem(int position) {
-        return mTracks.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view;
@@ -56,5 +41,20 @@ public class SearchAdapter extends BaseAdapter {
         mTracks.clear();
         mTracks.addAll(newTracks);
         notifyDataSetChanged();
+    }
+
+    @Override
+    public int getCount() {
+        return mTracks.size();
+    }
+
+    @Override
+    public Item getItem(int position) {
+        return mTracks.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 }

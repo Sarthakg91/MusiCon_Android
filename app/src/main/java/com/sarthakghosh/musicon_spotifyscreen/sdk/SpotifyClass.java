@@ -1,14 +1,14 @@
-package com.sarthakghosh.musicon_spotifyscreen;
+package com.sarthakghosh.musicon_spotifyscreen.sdk;
 
 /**
  * Created by Sarthak Ghosh on 30-03-2016.
  */
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.sarthakghosh.musicon_spotifyscreen.ui.MainActivity;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;

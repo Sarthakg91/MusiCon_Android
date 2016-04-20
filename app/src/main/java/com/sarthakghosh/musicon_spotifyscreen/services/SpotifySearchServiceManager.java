@@ -1,4 +1,4 @@
-package com.sarthakghosh.musicon_spotifyscreen;
+package com.sarthakghosh.musicon_spotifyscreen.services;
 
 import com.sarthakghosh.musicon_spotifyscreen.model.SearchResponse;
 import com.sarthakghosh.musicon_spotifyscreen.model.TrackList;
@@ -14,7 +14,7 @@ import retrofit2.http.Query;
  */
 public class SpotifySearchServiceManager {
     static String ENDPOINT = "https://api.spotify.com/";
-    static String QUERY_TYPE = "track";
+    public static String QUERY_TYPE = "track";
 
     public static SpotifySearchService getService() {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(ENDPOINT).

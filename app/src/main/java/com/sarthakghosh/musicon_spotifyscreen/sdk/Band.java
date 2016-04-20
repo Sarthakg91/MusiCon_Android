@@ -1,4 +1,4 @@
-package com.sarthakghosh.musicon_spotifyscreen;
+package com.sarthakghosh.musicon_spotifyscreen.sdk;
 
 import android.app.Activity;
 import android.content.Context;

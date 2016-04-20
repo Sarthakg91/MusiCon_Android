@@ -2,7 +2,31 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/wallet_dim_foreground_inverse_holo_dark">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:src="@drawable/emptyheart"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:id="@+id/heart_rate"
+            android:layout_height="40dp"
+            android:text="78"
+            android:textSize="20sp"
+            android:layout_marginTop="21dp"
+            android:layout_marginLeft="40dp"
+            android:textColor="@android:color/holo_red_light"
+            />
+
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/player_view"
@@ -13,7 +37,7 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
-        tools:context="com.sarthakghosh.musicon_spotifyscreen.MainActivity">
+        tools:context=".ui.MainActivity">
 
         <LinearLayout
             android:orientation="horizontal"
@@ -22,27 +46,43 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Current Heart Rate:"
-                android:textSize="20sp"/>
-
-            <TextView
-                android:id="@+id/heart_rate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:textStyle="bold"
-                android:textColor="@android:color/holo_red_light"
+                android:layout_height="60dp"
+                android:text="Connect band"
+                android:layout_marginLeft="45pt"
+                android:layout_marginTop="20dp"
                 android:textSize="20sp"
-                android:text="0 bpm"/>
+                android:textColor="@color/wallet_highlighted_text_holo_light"/>
+
+            <!--<TextView-->
+                <!--android:id="@+id/heart_rate"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginLeft="16dp"-->
+                <!--android:textStyle="bold"-->
+                <!--android:textColor="@android:color/holo_red_light"-->
+                <!--android:textSize="20sp"-->
+                <!--android:text="0 bpm"/>-->
         </LinearLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView" />
 
         <ImageView
             android:id="@+id/album_art"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight=".50"
+            android:layout_weight=".40"
             android:layout_marginTop="16dp" />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="317dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"
+            android:layout_gravity="center_horizontal"
+            android:progress="@integer/google_play_services_version"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -52,28 +92,31 @@
             <ImageButton
                 android:id="@+id/back"
                 android:layout_width="0dp"
-                android:layout_height="60dp"
+                android:layout_height="100dp"
                 android:layout_weight="0.33"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_back" />
+                android:src="@drawable/ic_action_name" />
 
             <ImageButton
                 android:id="@+id/play"
                 android:layout_width="0dp"
-                android:layout_height="60dp"
+                android:layout_height="100dp"
                 android:layout_weight="0.33"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_play" />
+                android:background="@drawable/ic_play_icon"
+
+                 />
 
             <ImageButton
                 android:id="@+id/skip"
                 android:layout_width="0dp"
-                android:layout_height="60dp"
+                android:layout_height="100dp"
                 android:layout_weight="0.33"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_skip" />
+                android:src="@drawable/ic_action_name2"/>
         </LinearLayout>
+
     </LinearLayout>
+
 
     <FrameLayout
         android:id="@+id/search_result_pane"
@@ -85,7 +128,8 @@
             android:id="@+id/search_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:dividerHeight="1dp" />
+            android:dividerHeight="1dp"
+            android:layout_gravity="right|top" />
 
     </FrameLayout>
 </FrameLayout>

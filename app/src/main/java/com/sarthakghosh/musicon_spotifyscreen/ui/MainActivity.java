@@ -1,4 +1,4 @@
-package com.sarthakghosh.musicon_spotifyscreen;
+package com.sarthakghosh.musicon_spotifyscreen.ui;
 
 import android.Manifest;
 import android.app.Activity;
@@ -34,9 +34,14 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.sarthakghosh.musicon_spotifyscreen.services.ContextSongListServiceManager;
+import com.sarthakghosh.musicon_spotifyscreen.R;
+import com.sarthakghosh.musicon_spotifyscreen.services.SpotifySearchServiceManager;
 import com.sarthakghosh.musicon_spotifyscreen.model.ContextSongsList;
 import com.sarthakghosh.musicon_spotifyscreen.model.Item;
 import com.sarthakghosh.musicon_spotifyscreen.model.SearchResponse;
+import com.sarthakghosh.musicon_spotifyscreen.sdk.Band;
+import com.sarthakghosh.musicon_spotifyscreen.sdk.SpotifyClass;
 import com.spotify.sdk.android.player.Player;
 import com.squareup.picasso.Picasso;
 
@@ -209,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Item track = mAdapter.getItem(position);
                 spotifyPlayer.play(track.mUri);
-                play_pause.setImageResource(R.drawable.ic_pause);
+                play_pause.setBackgroundResource(R.drawable.ic_pause_icon);
                 isPlaying = true;
                 Picasso.with(MainActivity.this).load(track.mAlbum.mImages.get(0).mUrl).into(mAlbumArt);
                 setUpMode(PLAYER_MODE);
@@ -306,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 Log.d("inside playClock", "click event handled");
 
                 if (!isPlaying) {
-                    play_pause.setImageResource(R.drawable.ic_pause);
+                    play_pause.setBackgroundResource(R.drawable.ic_pause_icon);
                     if (resuming) {
                         spotifyPlayer.resume();
                     } else {
@@ -317,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     isPlaying = true;
                 } else {
                     resuming = true;
-                    play_pause.setImageResource(R.drawable.ic_play);
+                    play_pause.setBackgroundResource(R.drawable.ic_play_icon);
                     spotifyPlayer.pause();
                     isPlaying = false;
                 }

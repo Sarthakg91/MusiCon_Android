@@ -3,7 +3,7 @@ package com.sarthakghosh.musicon_spotifyscreen.model;
 import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
-import com.sarthakghosh.musicon_spotifyscreen.SpotifySearchServiceManager;
+import com.sarthakghosh.musicon_spotifyscreen.services.SpotifySearchServiceManager;
 
 import org.parceler.Parcel;
 

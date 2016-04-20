@@ -1,4 +1,4 @@
-package com.sarthakghosh.musicon_spotifyscreen;
+package com.sarthakghosh.musicon_spotifyscreen.services;
 
 import com.sarthakghosh.musicon_spotifyscreen.model.ContextSongsList;
 
