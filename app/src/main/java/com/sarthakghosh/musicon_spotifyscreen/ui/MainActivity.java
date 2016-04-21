@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -112,22 +113,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private int mTimeElapsedInMS = 0;
     private int mProgress;
     private int mSongDuration;
-    
-    private TimerTask mProgressUpdateTimer = new TimerTask() {
-        @Override
-        public void run() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mTimeElapsedInMS += PROGRESS_REFRESH_RATE_IN_MS;
-                    mProgress = ((mTimeElapsedInMS / mSongDuration) * 100);
-                    progressbar.setProgress(mProgress);
-                }
-            });
-        }
-    };
-
-    private Timer mProgressTimer;
+    private CountDownTimer mCountDownTimer;
 
     // TODO: Replace with your client ID
     // private static final String CLIENT_ID = "ca7918d8ada9480d8b239c5557056ff0";
@@ -521,11 +507,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     public void onTrackChanged(PlayerState playerState) {
-        if (mProgressTimer != null) {
-            mProgressTimer.cancel();
-            mProgressTimer = null;
-        }
-
         mSongDuration = playerState.durationInMs;
         songEnd.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(playerState.durationInMs),
                 TimeUnit.MILLISECONDS.toSeconds(playerState.durationInMs) -
@@ -536,13 +517,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     public void onPlayerPause(PlayerState playerState) {
-        mProgressTimer.cancel();
-        mProgressTimer = null;
+        mCountDownTimer.cancel();
     }
 
     public void onPlayerPlay(PlayerState playerState) {
-        mProgressTimer = new Timer();
-        mProgressTimer.scheduleAtFixedRate(mProgressUpdateTimer, PROGRESS_REFRESH_RATE_IN_MS, PROGRESS_REFRESH_RATE_IN_MS);
+        mCountDownTimer = new CountDownTimer((mSongDuration - mTimeElapsedInMS), 50) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                mTimeElapsedInMS = (int) (mSongDuration - millisUntilFinished);
+                int currentSeek = ((mTimeElapsedInMS / mSongDuration) * 100);
+                progressbar.setProgress(currentSeek);
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        }.start();
     }
 
     public void onSkipNext(PlayerState playerState) {
