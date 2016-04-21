@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">MusiCon_SpotifyScreen</string>
     <string name="action_connect">Connect</string>
-    <string name="action_start">Start</string>
+    <string name="action_start">Stop Pam</string>
     <string name="search_title">search</string>
+    <string name="url_address">"http://52.37.58.111/v1/user/update_state"</string>
 
 </resources>

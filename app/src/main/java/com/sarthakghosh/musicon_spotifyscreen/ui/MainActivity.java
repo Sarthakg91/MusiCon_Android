@@ -43,6 +43,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.sarthakghosh.musicon_spotifyscreen.pam.NotificationService;
 import com.sarthakghosh.musicon_spotifyscreen.services.ContextSongListServiceManager;
 import com.sarthakghosh.musicon_spotifyscreen.R;
 import com.sarthakghosh.musicon_spotifyscreen.services.SpotifySearchServiceManager;
@@ -248,10 +249,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_connect:
-                msBandobject.checkConsent();
+                Intent intent=new Intent(MainActivity.this, NotificationService.class);
+                intent.putExtra("message","service message");
+                startService(intent);
+                //msBandobject.checkConsent();
                 return true;
             case R.id.action_start:
-                msBandobject.startSensing();
+                stopService(new Intent(this, NotificationService.class));
+                //msBandobject.startSensing();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

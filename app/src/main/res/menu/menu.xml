@@ -9,7 +9,7 @@
 
     <!-- Settings, should always be in the overflow -->
     <item android:id="@+id/action_connect"
-        android:title="@string/action_connect"
+        android:title="start pam"
         app:showAsAction="never"/>
 
     <item android:id="@+id/action_start"

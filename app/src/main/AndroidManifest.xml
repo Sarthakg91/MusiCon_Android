@@ -7,6 +7,9 @@
     <uses-permission android:name="com.microsoft.band.service.access.BIND_BAND_SERVICE"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 
     <application
@@ -26,6 +29,10 @@
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+
+        <activity android:name=".pam.ConfirmActivity"></activity>
+        <activity android:name=".pam.MainActivityPam"></activity>
+        <service android:name=".pam.NotificationService"></service>
     </application>
 
 </manifest>

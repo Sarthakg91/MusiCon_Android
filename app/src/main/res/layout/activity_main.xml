@@ -75,7 +75,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:progress="75" />
+            android:progress="0"
+            android:visibility="gone"/>
 
         <FrameLayout
             android:layout_width="match_parent"
