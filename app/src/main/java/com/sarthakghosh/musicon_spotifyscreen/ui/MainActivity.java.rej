@@ -1,0 +1,9 @@
+diff a/app/src/main/java/com/sarthakghosh/musicon_spotifyscreen/ui/MainActivity.java b/app/src/main/java/com/sarthakghosh/musicon_spotifyscreen/ui/MainActivity.java	(rejected hunks)
+@@ -36,6 +36,7 @@
+ import android.widget.LinearLayout;
+ import android.widget.ListView;
+ import android.widget.ProgressBar;
++import android.widget.SeekBar;
+ import android.widget.TextView;
+ import android.widget.Toast;
+ 
