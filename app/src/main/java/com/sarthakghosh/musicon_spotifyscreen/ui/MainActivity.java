@@ -112,7 +112,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private int mMode = PLAYER_MODE;
 
     private int mTimeElapsedInMS = 0;
-    private int mProgress;
     private int mSongDuration;
     private CountDownTimer mCountDownTimer;
 
@@ -164,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         bandMessge = (TextView) findViewById(R.id.bandText);
         songEnd = (TextView) findViewById(R.id.song_end_time);
         progressbar = (SeekBar) findViewById(R.id.progressBar);
+        progressbar.setProgress(0);
         setupSpotifyButtons();
 
 
@@ -512,9 +512,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         songEnd.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(playerState.durationInMs),
                 TimeUnit.MILLISECONDS.toSeconds(playerState.durationInMs) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(playerState.durationInMs))));
-        mProgress = 0;
         mTimeElapsedInMS = 0;
-        progressbar.setProgress(0);
     }
 
     public void onPlayerPause(PlayerState playerState) {
