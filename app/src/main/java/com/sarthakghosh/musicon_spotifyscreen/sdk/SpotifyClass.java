@@ -20,7 +20,7 @@ import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 
-public class SpotifyClass implements PlayerNotificationCallback, ConnectionStateCallback{
+public class SpotifyClass implements PlayerNotificationCallback, ConnectionStateCallback {
 
     private static final int REQUEST_CODE = 1337;
     // TODO: Replace with your client ID
@@ -29,23 +29,24 @@ public class SpotifyClass implements PlayerNotificationCallback, ConnectionState
     private Activity mActivity;
     private MainActivity mainActivityObject;
 
-    public SpotifyClass(Activity activity, MainActivity mainActivity)
-    {
+    public SpotifyClass(Activity activity, MainActivity mainActivity) {
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
-            AuthenticationResponse.Type.TOKEN,
-            REDIRECT_URI);
+                AuthenticationResponse.Type.TOKEN,
+                REDIRECT_URI);
         builder.setScopes(new String[]{"user-read-private", "streaming"});
         AuthenticationRequest request = builder.build();
-        mActivity=activity;
+        mActivity = activity;
         AuthenticationClient.openLoginActivity(mActivity, REQUEST_CODE, request);
-        mainActivityObject=mainActivity;
+        mainActivityObject = mainActivity;
     }
+
     // TODO: Replace with your redirect URI
     private static final String REDIRECT_URI = "musicon://callback";
+
     @Override
     public void onLoggedIn() {
 
-            Log.d(SpotifyClass.class.getSimpleName(), "User logged in");
+        Log.d(SpotifyClass.class.getSimpleName(), "User logged in");
 
     }
 
@@ -71,91 +72,92 @@ public class SpotifyClass implements PlayerNotificationCallback, ConnectionState
 
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
-        String eventName=eventType.name();
-        Log.d(SpotifyClass.class.getSimpleName(), "Playback event received: " + eventName);
-        if (eventName.equalsIgnoreCase("PLAY")||eventName.equalsIgnoreCase("TRACK_START"))
-        {
-            double duration= (double)(playerState.durationInMs)/(double)(60000.0);
-            Log.d(SpotifyClass.class.getSimpleName(), "Duration of current song " + String.valueOf(duration));
-            appendToUI(String.valueOf(duration).substring(0,4),"duration");//update UI from here
+        Log.d(SpotifyClass.class.getSimpleName(), "Playback event received: " + eventType.name());
+        if (eventType.equals(EventType.TRACK_CHANGED)) {
+            Log.d(SpotifyClass.class.getSimpleName(), "Duration of current song " + String.valueOf(playerState.durationInMs));
+            mainActivityObject.onTrackChanged(playerState);
+        } else if (eventType.equals(EventType.PLAY)) {
+            mainActivityObject.onPlayerPlay(playerState);
+        } else if (eventType.equals(EventType.PAUSE)) {
+            mainActivityObject.onPlayerPause(playerState);
+        } else if (eventType.equals(EventType.SKIP_NEXT)) {
+            mainActivityObject.onSkipNext(playerState);
+        } else if (eventType.equals(EventType.SKIP_PREV)) {
+            mainActivityObject.onSkipPrevious(playerState);
         }
-
-
     }
+
     private void appendToUI(final String string, String extra) {
         //send an intent to Main Activity to reset the text view
 
-        Intent intent=new Intent();
+        Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         Bundle passData = new Bundle();
-        passData.putString("DURATION", string);
         intent.setAction("com.sarthakghosh.musicon_spotifyscreen.Broadcast");
 
         intent.putExtras(passData);
         // intent.putExtra("Extra",extra);
         mainActivityObject.sendBroadcast(intent);
     }
+
     @Override
     public void onPlaybackError(ErrorType errorType, String s) {
         Log.d(SpotifyClass.class.getSimpleName(), "Playback error received: " + errorType.name());
     }
-    public void destroyPlayer()
-    {
-    Spotify.destroyPlayer(this);
+
+    public void destroyPlayer() {
+        Spotify.destroyPlayer(this);
     }
-    public void play(String uri)
-    {
+
+    public void play(String uri) {
         mPlayer.play(uri);
     }
 
-    public void pause()
-    {
+    public void pause() {
         mPlayer.pause();
     }
 
-    public void queueSong(String uri)
-    {
+    public void queueSong(String uri) {
         mPlayer.queue(uri);
     }
 
-    public void clearQueue()
-    {
+    public void clearQueue() {
         mPlayer.clearQueue();
     }
 
-    public void skip()
-    {
+    public void skip() {
         mPlayer.skipToNext();
     }
 
-    public void previous()
-    {
+    public void previous() {
         mPlayer.skipToPrevious();
     }
-    public void skip(String uri)
-    {
+
+    public void skip(String uri) {
         mPlayer.play(uri);
     }
-    public void back(String uri)
-    {
+
+    public void back(String uri) {
         mPlayer.play(uri);
     }
+
     public void queue(String uri) {
         mPlayer.queue(uri);
     }
+
     public void skipToNext() {
         mPlayer.skipToNext();
     }
-    public void resume()
-    {
+
+    public void resume() {
         mPlayer.resume();
     }
-    public void checkAuthentication(int requestCode, int resultCode, Intent intent)
-    {
+
+    public void checkAuthentication(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
 
-            if(response.getError()!=null)
+            if (response.getError() != null)
                 Log.d("error is ", response.getError());
 
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {

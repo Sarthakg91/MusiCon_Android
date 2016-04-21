@@ -1,6 +1,9 @@
 package com.sarthakghosh.musicon_spotifyscreen.ui;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,6 +12,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -20,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -44,18 +50,26 @@ import com.sarthakghosh.musicon_spotifyscreen.model.SearchResponse;
 import com.sarthakghosh.musicon_spotifyscreen.sdk.Band;
 import com.sarthakghosh.musicon_spotifyscreen.sdk.SpotifyClass;
 import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.PlayerState;
 import com.squareup.picasso.Picasso;
+
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     // Request code that will be used to verify if the result comes from correct activity
 // Can be any integer
     //private static final int REQUEST_CODE = 1337;
+    private static final int PROGRESS_REFRESH_RATE_IN_MS = 50;
+    
     private static final int PLAYER_MODE = 0x001;
     private static final int SEARCH_MODE = 0x002;
 
@@ -64,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private static final int WARMUP = 0x112;
     private static final int JOGGING = 0x113;
     private static final int SPRINT = 0x114;
+    private static final int START_ANIMATION = 0x201;
 
     private ContextSongsList mSongsList;
     private String playingUri = "";
@@ -77,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private ImageButton back;
     private SearchView mSearchView;
     private ImageView mAlbumArt;
+    private ImageView mHeartView;
     private TextView mHeartRate;
     private TextView bandMessge;
     private TextView songEnd;
@@ -93,7 +109,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     boolean resuming = false;
     private int mMode = PLAYER_MODE;
 
-    private int timeSpentInSecs=0;
+    private int mTimeElapsedInMS = 0;
+    private int mProgress;
+    private int mSongDuration;
+    
+    private TimerTask mProgressUpdateTimer = new TimerTask() {
+        @Override
+        public void run() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mTimeElapsedInMS += PROGRESS_REFRESH_RATE_IN_MS;
+                    mProgress = ((mTimeElapsedInMS / mSongDuration) * 100);
+                    progressbar.setProgress(mProgress);
+                }
+            });
+        }
+    };
+
+    private Timer mProgressTimer;
 
     // TODO: Replace with your client ID
     // private static final String CLIENT_ID = "ca7918d8ada9480d8b239c5557056ff0";
@@ -106,6 +140,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private int mHeartRateMode = -1;
     private GoogleApiClient mGoogleApiClient;
     private boolean mIsGoogleApiConnected = false;
+    private Handler mAnimationHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == START_ANIMATION) {
+                getScaleAnimators().start();
+            }
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,21 +162,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         mPlayerPane = (LinearLayout) findViewById(R.id.player_view);
         mSearchPane = (FrameLayout) findViewById(R.id.search_result_pane);
-        bandConnection=(LinearLayout)findViewById(R.id.heartLayout);
+        bandConnection = (LinearLayout) findViewById(R.id.heartLayout);
 
         mSearchResultList = (ListView) findViewById(R.id.search_list);
         mAdapter = new SearchAdapter();
         setUpSearchListAndAdapter();
 
         mAlbumArt = (ImageView) findViewById(R.id.album_art);
+        mHeartView = (ImageView) findViewById(R.id.heart_image);
         play_pause = (ImageButton) findViewById(R.id.play);
         back = (ImageButton) findViewById(R.id.back);
         skip = (ImageButton) findViewById(R.id.skip);
         mHeartRate = (TextView) findViewById(R.id.heart_rate);
-        bandMessge=(TextView)findViewById(R.id.bandText);
-        songEnd=(TextView)findViewById(R.id.song_end_time);
-        progressbar=(ProgressBar)findViewById(R.id.progressBar);
-        progressbar.setProgress(0);
+        bandMessge = (TextView) findViewById(R.id.bandText);
+        songEnd = (TextView) findViewById(R.id.song_end_time);
+        progressbar = (ProgressBar) findViewById(R.id.progressBar);
         setupSpotifyButtons();
 
 
@@ -287,6 +330,69 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
+    private ValueAnimator getScaleAnimators() {
+        int animationDuration = -1;
+        switch (mHeartRateMode) {
+            case RESTING:
+                animationDuration = 500;
+                break;
+            case NORMAL:
+                animationDuration = 400;
+                break;
+            case WARMUP:
+                animationDuration = 300;
+                break;
+            case JOGGING:
+                animationDuration = 220;
+                break;
+            case SPRINT:
+                animationDuration = 150;
+                break;
+            default:
+                animationDuration = 400;
+        }
+
+        final ValueAnimator scaleUp = ValueAnimator.ofFloat(0.7f, 1f);
+        scaleUp.setInterpolator(new AccelerateDecelerateInterpolator());
+        scaleUp.setDuration(animationDuration);
+        scaleUp.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float scale = (float) animation.getAnimatedValue();
+                mHeartView.setScaleX(scale);
+                mHeartView.setScaleY(scale);
+            }
+        });
+        scaleUp.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                mAnimationHandler.sendEmptyMessageDelayed(START_ANIMATION, 50);
+            }
+        });
+
+        ValueAnimator scaleDown = ValueAnimator.ofFloat(1f, 0.7f);
+        scaleDown.setInterpolator(new AccelerateDecelerateInterpolator());
+        scaleDown.setDuration(animationDuration);
+        scaleDown.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float scale = (float) animation.getAnimatedValue();
+                mHeartView.setScaleX(scale);
+                mHeartView.setScaleY(scale);
+            }
+        });
+        scaleDown.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                scaleUp.start();
+            }
+        });
+
+        return scaleDown;
+    }
+
     private void startSearchWithQuery(String queryText) {
         Call<SearchResponse> searchResponseCall = SpotifySearchServiceManager.getService().
                 query(queryText, SpotifySearchServiceManager.QUERY_TYPE);
@@ -367,17 +473,39 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     spotifyPlayer.skip(playingUri);
                     play_pause.setBackgroundResource(R.drawable.ic_pause_icon);
                 } else {
-
-
                     playingUri = mSongsList.getNextSongUri(); //calling next song changes current song to next song
                     Picasso.with(MainActivity.this).load(mSongsList.mTrackList.mTracks.
                             get(mSongsList.getmCurrentSongIndex()).mAlbum.mImages.get(0).mUrl).into(mAlbumArt);
 
                     spotifyPlayer.skip(playingUri);
                     spotifyPlayer.pause();
-
                 }
 
+            }
+        });
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (isPlaying) {
+                    spotifyPlayer.pause();
+                    play_pause.setBackgroundResource(R.drawable.ic_play_icon);
+
+                    playingUri = mSongsList.getPreviousSongUri(); //calling next song changes current song to next song
+                    Picasso.with(MainActivity.this).load(mSongsList.mTrackList.mTracks.
+                            get(mSongsList.getmCurrentSongIndex()).mAlbum.mImages.get(0).mUrl).into(mAlbumArt);
+
+                    spotifyPlayer.skip(playingUri);
+                    play_pause.setBackgroundResource(R.drawable.ic_pause_icon);
+                } else {
+                    playingUri = mSongsList.getPreviousSongUri(); //calling next song changes current song to next song
+                    Picasso.with(MainActivity.this).load(mSongsList.mTrackList.mTracks.
+                            get(mSongsList.getmCurrentSongIndex()).mAlbum.mImages.get(0).mUrl).into(mAlbumArt);
+
+                    spotifyPlayer.skip(playingUri);
+                    spotifyPlayer.pause();
+                }
             }
         });
 
@@ -392,36 +520,62 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
+    public void onTrackChanged(PlayerState playerState) {
+        if (mProgressTimer != null) {
+            mProgressTimer.cancel();
+            mProgressTimer = null;
+        }
+
+        mSongDuration = playerState.durationInMs;
+        songEnd.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(playerState.durationInMs),
+                TimeUnit.MILLISECONDS.toSeconds(playerState.durationInMs) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(playerState.durationInMs))));
+        mProgress = 0;
+        mTimeElapsedInMS = 0;
+        progressbar.setProgress(0);
+    }
+
+    public void onPlayerPause(PlayerState playerState) {
+        mProgressTimer.cancel();
+        mProgressTimer = null;
+    }
+
+    public void onPlayerPlay(PlayerState playerState) {
+        mProgressTimer = new Timer();
+        mProgressTimer.scheduleAtFixedRate(mProgressUpdateTimer, PROGRESS_REFRESH_RATE_IN_MS, PROGRESS_REFRESH_RATE_IN_MS);
+    }
+
+    public void onSkipNext(PlayerState playerState) {
+
+    }
+
+    public void onSkipPrevious(PlayerState playerState) {
+
+    }
+
+    private boolean mHeartViewAnimating = false;
     protected BroadcastReceiver textReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
             Bundle extras = intent.getExtras();
-            String duration = extras.getString("DURATION");
             String heartRate = extras.getString("heartrate");
-            String bandmessage= extras.getString("connecting");
+            String bandmessage = extras.getString("connecting");
 
-            Log.d("MainActivity", "Text Received: " + duration+","+heartRate+","+","+bandmessage);
-            if(bandmessage!=null)
-            {
+            Log.d("MainActivity", "Text Received: " + heartRate + "," + "," + bandmessage);
+
+            if (bandmessage != null) {
                 Log.d("MainActivity", "inside band message");
                 bandMessge.setText(bandmessage);
-            }
-
-            else if (heartRate!=null){
+            } else if (heartRate != null) {
+                if (!mHeartViewAnimating) {
+                    mAnimationHandler.sendEmptyMessageDelayed(START_ANIMATION, 50);
+                    mHeartViewAnimating = true;
+                }
                 mHeartRate.setText(heartRate);
-
                 if (heartRate != null && heartRate.length() <= 3) {
                     getContextSpecificSongsList(Integer.valueOf(heartRate));
                 }
-            }
-            else if (duration!=null){
-                songEnd.setText(duration);
-                progressbar.setProgress(0);
-                timeSpentInSecs=0;
-
-
-
             }
         }
     };
@@ -445,7 +599,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Log.d("MainActivity", "Inside if. About to make request");
             Call<ContextSongsList> contextSongsListCall = ContextSongListServiceManager.getService().
                     getSongsList(currentLocation.getLatitude(),
-                    currentLocation.getLongitude(), heartRate);
+                            currentLocation.getLongitude(), heartRate);
             contextSongsListCall.enqueue(new Callback<ContextSongsList>() {
                 @Override
                 public void onResponse(Call<ContextSongsList> call, Response<ContextSongsList> response) {
