@@ -36,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private TextView bandMessge;
     private TextView songEnd;
 
-    private ProgressBar progressbar;
+    private SeekBar progressbar;
 
     private ListView mSearchResultList;
     private SearchAdapter mAdapter;
@@ -162,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mHeartRate = (TextView) findViewById(R.id.heart_rate);
         bandMessge = (TextView) findViewById(R.id.bandText);
         songEnd = (TextView) findViewById(R.id.song_end_time);
-        progressbar = (ProgressBar) findViewById(R.id.progressBar);
+        progressbar = (SeekBar) findViewById(R.id.progressBar);
         setupSpotifyButtons();
 
 
