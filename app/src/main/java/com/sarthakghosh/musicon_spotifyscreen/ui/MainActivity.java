@@ -28,6 +28,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private LinearLayout mPlayerPane;
     private FrameLayout mSearchPane;
+    private LinearLayout bandConnection;
 
     private ImageButton play_pause;
     private ImageButton skip;
@@ -76,7 +78,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private SearchView mSearchView;
     private ImageView mAlbumArt;
     private TextView mHeartRate;
+    private TextView bandMessge;
+    private TextView songEnd;
 
+    private ProgressBar progressbar;
 
     private ListView mSearchResultList;
     private SearchAdapter mAdapter;
@@ -88,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     boolean resuming = false;
     private int mMode = PLAYER_MODE;
 
+    private int timeSpentInSecs=0;
 
     // TODO: Replace with your client ID
     // private static final String CLIENT_ID = "ca7918d8ada9480d8b239c5557056ff0";
@@ -113,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         mPlayerPane = (LinearLayout) findViewById(R.id.player_view);
         mSearchPane = (FrameLayout) findViewById(R.id.search_result_pane);
+        bandConnection=(LinearLayout)findViewById(R.id.heartLayout);
 
         mSearchResultList = (ListView) findViewById(R.id.search_list);
         mAdapter = new SearchAdapter();
@@ -123,6 +130,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         back = (ImageButton) findViewById(R.id.back);
         skip = (ImageButton) findViewById(R.id.skip);
         mHeartRate = (TextView) findViewById(R.id.heart_rate);
+        bandMessge=(TextView)findViewById(R.id.bandText);
+        songEnd=(TextView)findViewById(R.id.song_end_time);
+        progressbar=(ProgressBar)findViewById(R.id.progressBar);
+        progressbar.setProgress(0);
         setupSpotifyButtons();
 
 
@@ -138,6 +149,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     .addApi(LocationServices.API)
                     .build();
         }
+
+        bandConnection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                msBandobject.checkConsent();
+                msBandobject.startSensing();
+
+            }
+        });
     }
 
     @Override
@@ -333,15 +355,28 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onClick(View v) {
                 Log.d("MainActivity", "inside skip clicked");
-                spotifyPlayer.pause();
-                play_pause.setImageResource(R.drawable.ic_play);
 
-                playingUri = mSongsList.getNextSongUri(); //calling next song changes current song to next song
-                Picasso.with(MainActivity.this).load(mSongsList.mTrackList.mTracks.
-                        get(mSongsList.getmCurrentSongIndex()).mAlbum.mImages.get(0).mUrl).into(mAlbumArt);
+                if (isPlaying) {
+                    spotifyPlayer.pause();
+                    play_pause.setBackgroundResource(R.drawable.ic_play_icon);
 
-                spotifyPlayer.skip(playingUri);
-                play_pause.setImageResource(R.drawable.ic_pause);
+                    playingUri = mSongsList.getNextSongUri(); //calling next song changes current song to next song
+                    Picasso.with(MainActivity.this).load(mSongsList.mTrackList.mTracks.
+                            get(mSongsList.getmCurrentSongIndex()).mAlbum.mImages.get(0).mUrl).into(mAlbumArt);
+
+                    spotifyPlayer.skip(playingUri);
+                    play_pause.setBackgroundResource(R.drawable.ic_pause_icon);
+                } else {
+
+
+                    playingUri = mSongsList.getNextSongUri(); //calling next song changes current song to next song
+                    Picasso.with(MainActivity.this).load(mSongsList.mTrackList.mTracks.
+                            get(mSongsList.getmCurrentSongIndex()).mAlbum.mImages.get(0).mUrl).into(mAlbumArt);
+
+                    spotifyPlayer.skip(playingUri);
+                    spotifyPlayer.pause();
+
+                }
 
             }
         });
@@ -360,11 +395,33 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected BroadcastReceiver textReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String textReceived = intent.getExtras().getString("Text");
-            Log.d("MainActivity", "Text Received: " + textReceived);
-            mHeartRate.setText(textReceived);
-            if (textReceived != null && textReceived.length() <= 3) {
-                getContextSpecificSongsList(Integer.valueOf(textReceived));
+
+            Bundle extras = intent.getExtras();
+            String duration = extras.getString("DURATION");
+            String heartRate = extras.getString("heartrate");
+            String bandmessage= extras.getString("connecting");
+
+            Log.d("MainActivity", "Text Received: " + duration+","+heartRate+","+","+bandmessage);
+            if(bandmessage!=null)
+            {
+                Log.d("MainActivity", "inside band message");
+                bandMessge.setText(bandmessage);
+            }
+
+            else if (heartRate!=null){
+                mHeartRate.setText(heartRate);
+
+                if (heartRate != null && heartRate.length() <= 3) {
+                    getContextSpecificSongsList(Integer.valueOf(heartRate));
+                }
+            }
+            else if (duration!=null){
+                songEnd.setText(duration);
+                progressbar.setProgress(0);
+                timeSpentInSecs=0;
+
+
+
             }
         }
     };

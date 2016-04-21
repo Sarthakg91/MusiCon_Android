@@ -6,6 +6,7 @@ package com.sarthakghosh.musicon_spotifyscreen.sdk;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.sarthakghosh.musicon_spotifyscreen.ui.MainActivity;
@@ -70,10 +71,30 @@ public class SpotifyClass implements PlayerNotificationCallback, ConnectionState
 
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
-        Log.d(SpotifyClass.class.getSimpleName(), "Playback event received: " + eventType.name());
+        String eventName=eventType.name();
+        Log.d(SpotifyClass.class.getSimpleName(), "Playback event received: " + eventName);
+        if (eventName.equalsIgnoreCase("PLAY")||eventName.equalsIgnoreCase("TRACK_START"))
+        {
+            double duration= (double)(playerState.durationInMs)/(double)(60000.0);
+            Log.d(SpotifyClass.class.getSimpleName(), "Duration of current song " + String.valueOf(duration));
+            appendToUI(String.valueOf(duration).substring(0,4),"duration");//update UI from here
+        }
+
 
     }
+    private void appendToUI(final String string, String extra) {
+        //send an intent to Main Activity to reset the text view
 
+        Intent intent=new Intent();
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        Bundle passData = new Bundle();
+        passData.putString("DURATION", string);
+        intent.setAction("com.sarthakghosh.musicon_spotifyscreen.Broadcast");
+
+        intent.putExtras(passData);
+        // intent.putExtra("Extra",extra);
+        mainActivityObject.sendBroadcast(intent);
+    }
     @Override
     public void onPlaybackError(ErrorType errorType, String s) {
         Log.d(SpotifyClass.class.getSimpleName(), "Playback error received: " + errorType.name());

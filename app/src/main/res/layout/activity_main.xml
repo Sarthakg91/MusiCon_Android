@@ -13,7 +13,9 @@
         android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:clickable="true"
+        android:id="@+id/heartLayout">
 
         <FrameLayout
             android:id="@+id/band_connect_button"
@@ -38,6 +40,7 @@
         </FrameLayout>
 
         <TextView
+            android:id="@+id/bandText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
@@ -118,6 +121,7 @@
 
             <TextView
                 android:id="@+id/song_end_time"
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"

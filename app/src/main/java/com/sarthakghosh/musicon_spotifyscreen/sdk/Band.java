@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.microsoft.band.BandClient;
@@ -43,7 +44,8 @@ public class Band{
             {
                 heartRate= bandHeartRateEvent.getHeartRate();
                 quality= String.valueOf(bandHeartRateEvent.getQuality());
-                appendToUI(String.valueOf(heartRate));
+                appendToUI(String.valueOf(heartRate),"heartrate");
+                appendToUI("Connected","connecting");
             }
         }
     };
@@ -86,7 +88,7 @@ public class Band{
                         });
                     }
                 } else {
-                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                    appendToUI("Band is not paired..\n","connecting");
                 }
             } catch (BandException e) {
                 String exceptionMessage="";
@@ -101,10 +103,10 @@ public class Band{
                         exceptionMessage = "Unknown error occured: " + e.getMessage() + "\n";
                         break;
                 }
-                appendToUI(exceptionMessage);
+                appendToUI(exceptionMessage,"connecting");
 
             } catch (Exception e) {
-                appendToUI(e.getMessage());
+                appendToUI(e.getMessage(),"connecting");
             }
             return null;
         }
@@ -121,11 +123,10 @@ public class Band{
                     if (client.getSensorManager().getCurrentHeartRateConsent() == UserConsent.GRANTED) {
                         client.getSensorManager().registerHeartRateEventListener(mHeartRateEventListener);
                     } else {
-                        appendToUI("You have not given this application consent to access heart rate data yet."
-                                + " Please press the Heart Rate Consent button.\n");
+                        appendToUI(" Please press the Heart Rate Consent button.\n","connecting");
                     }
                 } else {
-                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                    appendToUI("Pair With bluetooth\n","connecting");
                 }
             } catch (BandException e) {
                 String exceptionMessage="";
@@ -140,10 +141,10 @@ public class Band{
                         exceptionMessage = "Unknown error occured: " + e.getMessage() + "\n";
                         break;
                 }
-                appendToUI(exceptionMessage);
+                appendToUI(exceptionMessage,"connecting");
 
             } catch (Exception e) {
-                appendToUI(e.getMessage());
+                appendToUI(e.getMessage(),"connecting");
             }
             return null;
         }
@@ -154,7 +155,7 @@ public class Band{
         if (client == null) {
             BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
             if (devices.length == 0) {
-                appendToUI("Band isn't paired with your phone.\n");
+                appendToUI("Band isn't paired with your phone.\n","connecting");
                 return false;
             }
             client = BandClientManager.getInstance().create(mContext, devices[0]);
@@ -162,17 +163,19 @@ public class Band{
             return true;
         }
 
-        appendToUI("Band is connecting...\n");
+        appendToUI("Band is connecting...\n","connecting");
         return ConnectionState.CONNECTED == client.connect().await();
     }
 
-    private void appendToUI(final String string) {
+    private void appendToUI(final String string, String extra) {
         //send an intent to Main Activity to reset the text view
 
         Intent intent=new Intent();
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         intent.setAction("com.sarthakghosh.musicon_spotifyscreen.Broadcast");
-        intent.putExtra("Text", string);
+        Bundle passData = new Bundle();
+        passData.putString(extra, string);
+        intent.putExtras(passData);
         mainUiActivity.sendBroadcast(intent);
     }
 }
