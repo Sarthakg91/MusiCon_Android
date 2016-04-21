@@ -36,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private TextView bandMessge;
     private TextView songEnd;
 
-    private ProgressBar progressbar;
+    private SeekBar progressbar;
 
     private ListView mSearchResultList;
     private SearchAdapter mAdapter;
@@ -111,7 +112,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private int mMode = PLAYER_MODE;
 
     private int mTimeElapsedInMS = 0;
-    private int mProgress;
     private int mSongDuration;
     private CountDownTimer mCountDownTimer;
 
@@ -162,7 +162,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mHeartRate = (TextView) findViewById(R.id.heart_rate);
         bandMessge = (TextView) findViewById(R.id.bandText);
         songEnd = (TextView) findViewById(R.id.song_end_time);
-        progressbar = (ProgressBar) findViewById(R.id.progressBar);
+        progressbar = (SeekBar) findViewById(R.id.progressBar);
+        progressbar.setProgress(0);
         setupSpotifyButtons();
 
 
@@ -511,9 +512,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         songEnd.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(playerState.durationInMs),
                 TimeUnit.MILLISECONDS.toSeconds(playerState.durationInMs) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(playerState.durationInMs))));
-        mProgress = 0;
         mTimeElapsedInMS = 0;
-        progressbar.setProgress(0);
     }
 
     public void onPlayerPause(PlayerState playerState) {
